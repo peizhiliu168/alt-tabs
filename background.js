@@ -1,0 +1,262 @@
+/*
+    Class and helper function definitions
+*/
+
+// a stack datasturcture to record the current tabs
+class Stack{
+    
+    // initializes stack object
+    constructor(predicate){
+        this.data = [];
+        this.top = 0;
+        this.predicate = predicate;
+    }
+
+    // given an element, determine if that element is already in the stack. 
+    // if it is, move the item to the top of the stack, if it isn't append 
+    // the new item to the top of the stack
+    push(element){
+        var index = this.data.findIndex(this.predicate, element);
+
+        if (index == -1){
+            this.data[this.top] = element;
+            this.top ++;
+            return;
+        }
+
+        var new_data = this.data.slice(0,index)
+        new_data = new_data.concat(this.data.slice(index + 1, this.top))
+        new_data[this.top - 1] = this.data[index]
+        
+        this.data = new_data
+    }
+
+    // replaces one element with another
+    replace(old_element, new_element){
+        var index = this.data.findIndex(this.predicate, old_element);
+        if (index != -1){
+            this.data[index] = new_element;
+        }
+    }
+
+    // pops an element off the top of the stack
+    pop(){
+        if (this.is_empty()){
+            return;
+        }
+
+        this.top --;
+        var result = this.data[this.top];
+        return result;
+    }
+
+    // removes element off the stack given an element
+    remove(element){
+        var index = this.data.findIndex(this.predicate, element);
+
+        if (index != -1){
+            var new_data = this.data.slice(0, index);
+            new_data = new_data.concat(this.data.slice(index + 1, this.top));
+            this.data = new_data;
+            this.top --;
+        }
+    }
+
+    // take a peek at the element at the very top
+    peek(){
+        return this.data[this.top - 1];
+    }
+
+    // return all the elements on the stack as an ordered list
+    // with the top-most element in the front
+    get_stack(){
+        var ret_arr = Array.from(this.data);
+        return ret_arr.reverse()
+    }
+
+    // return all the elements on the stack in the reversed order,
+    // with the top-most element in the end
+    get_stack_true(){
+        return this.data
+    }
+
+    // checks if the stack is empty
+    is_empty(){
+        return this.top === 0;
+    }
+
+    // returns the length of the stack
+    length(){
+        return this.top;
+    }
+
+    // prints out the elements of the stack for debugging
+    print(){
+        for (var i = this.top - 1; i >=0; i --){
+            console.log(this.data[i]);
+        }
+    }
+}
+
+function test_pred(element, index){
+    return element == this;
+}
+
+// function used to compare two chrome tabs to see if they're are 
+// the same tab
+function tab_pred(tab){
+    return tab.id == this.id;
+}
+
+
+
+
+
+
+
+
+
+
+/*
+    Begin main functions...
+*/
+// start alt tabs when it is first installed
+chrome.runtime.onInstalled.addListener(() => {
+    start_alt_tabs();
+})
+
+// start alt tabs when profile with extension starts up
+chrome.runtime.onStartup.addListener(() => {
+    start_alt_tabs();
+})
+
+// global variable of Stack instance to store the stack of tabs
+var tabs_stack = new Stack(tab_pred);
+
+// to be executed on extension startup
+function start_alt_tabs(){
+    // fill tabs_stack by pushing all the tabs onto stack
+    chrome.tabs.query({}, (tabs) => {
+        tabs.forEach(tab => {
+            tabs_stack.push(tab);
+        });
+    });
+
+    // now repush the current tab user is on to make it the top of stack
+    chrome.tabs.query({currentWindow: true, active: true}, (tabs) => {
+        tabs.forEach(tab =>{
+            tabs_stack.push(tab);
+        })
+    })
+}
+
+
+
+
+/*
+    Callback functions...
+*/
+
+// push new tab onto stack when it's created
+chrome.tabs.onCreated.addListener((tab) => {
+    console.log("tab created");
+    tabs_stack.push(tab);
+})
+
+// when a tab is updated
+chrome.tabs.onUpdated.addListener((tab_id, change_info, tab) => {
+    console.log("tab updated");
+    tabs_stack.replace(tab, tab);
+})
+
+// push update tab onto stack when selection is changed
+chrome.tabs.onActivated.addListener((active_info) => {
+    console.log("tab activated");
+    console.log(tabs_stack)
+    chrome.tabs.query({windowId: active_info.windowId, active: true}, (tabs) => {
+        tabs.forEach(tab => {
+            tabs_stack.push(tab);
+        })
+    })
+})
+
+// remove tab from stack when the tab is closing. Since the 
+// actual tab is closed before the event is issued, we must 
+// do a search in the tabs_stack for the tab instead of using 
+// tab.query
+chrome.tabs.onRemoved.addListener((tab_id, remove_info) => {
+    console.log("tab removed");
+    var removed_tab;
+    for (var i = 0; i < tabs_stack.length(); i++){
+        if (tabs_stack.get_stack_true()[i].id == tab_id){
+            removed_tab = tabs_stack.get_stack_true()[i];
+        }
+    }
+    
+    if (!removed_tab){
+        Error('removed tab does not exist in stack!');
+    } else{
+        tabs_stack.remove(removed_tab);
+    }
+})
+
+// replace tab with new tab when onReplaced is called, the
+// idea of getting the old tab is the same as the the callback
+// for onRemoved
+chrome.tabs.onReplaced.addListener((added_id, removed_id) => {
+    console.log("tab replaced");
+    var added_tab;
+    chrome.tabs.get((tab) => {added_tab = tab});
+
+    var removed_tab;
+    for (var i = 0; i < tabs_stack.length(); i++){
+        if (tabs_stack.get_stack_true()[i].id == removed_id){
+            removed_tab = tabs_stack.get_stack_true()[i];
+        }
+    }
+    
+    if (!removed_tab){
+        Error('removed tab does not exist in stack!');
+    } else{
+        tabs_stack.replace(removed_tab, added_tab);
+    }
+})
+
+// switch tabs when the command toggle-tabs-switching is 
+// present from user using shortcut
+chrome.commands.onCommand.addListener(function(command) {
+    console.log("alt-tabbed");
+    if (command == 'toggle-tabs-switching'){
+        if (tabs_stack.length() > 1){
+            var new_tab = tabs_stack.get_stack()[1];
+            chrome.tabs.update(new_tab.id, {active: true});
+        }
+    }
+  });
+
+  /*ar alt_down = false;
+  var tab_down = false;
+  chrome.runtime.onMessage.addListener((message, sender) => {
+      if (message.key_event == "alt_key_down"){
+          alt_down = true;
+      }
+      if (message.key_event == "alt_key_up"){
+          alt_down = false;
+      }
+      if (message.key_event == "tab_key_down"){
+          tab_down = true;
+      }
+      if (message.key_event == "tab_key_up"){
+          tab_down = false;
+      }
+      
+      console.log(alt_down);
+      console.log(tab_down);
+
+      if (alt_down && tab_down){
+        if (tabs_stack.length() > 1){
+            var new_tab = tabs_stack.get_stack()[1];
+            chrome.tabs.update(new_tab.id, {active: true});
+        }
+      }
+  })*/
