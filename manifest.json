@@ -15,21 +15,32 @@
     "content_scripts": [
         {
           "matches": ["<all_urls>"],
-          "js": ["jquery.min.js","content.js"]
+          "js": ["js/jquery.min.js","js/content.js"]
         }
       ],
 
     "background": {
-        "scripts": ["background.js"]
+        "scripts": ["js/background.js"]
     },
 
     "commands":{
         "toggle-tabs-switching": {
             "suggested_key": {
                 "default": "Alt+Q",
-                "mac": "Alt+Q"
+                "mac": "Alt+Q",
+                "chromeos": "Alt+Q",
+                "linux": "Alt+Q"
               },
             "description": "Toggle tabs switching"
+        },
+        "toggle-tabs-window": {
+            "suggested_key": {
+                "default": "Alt+W",
+                "mac": "Alt+W",
+                "chromeos": "Alt+W",
+                "linux": "Alt+W"
+              },
+            "description": "Toggle tabs window"
         }
     }
     

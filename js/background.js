@@ -180,6 +180,20 @@ chrome.tabs.onActivated.addListener((active_info) => {
     })
 })
 
+// update tab when the tab is detached
+chrome.tabs.onDetached.addListener((tab_id) => {
+    chrome.tabs.get(tab_id, (tab) => {
+        tabs_stack.replace(tab, tab);
+    })
+})
+
+// update tab when the tab is attached
+chrome.tabs.onAttached.addListener((tab_id) => {
+    chrome.tabs.get(tab_id, (tab) => {
+        tabs_stack.replace(tab, tab);
+    })
+})
+
 // remove tab from stack when the tab is closing. Since the 
 // actual tab is closed before the event is issued, we must 
 // do a search in the tabs_stack for the tab instead of using 
@@ -222,17 +236,66 @@ chrome.tabs.onReplaced.addListener((added_id, removed_id) => {
     }
 })
 
+chrome.windows.onFocusChanged.addListener((window_id) => {
+    if (window_id != chrome.windows.WINDOW_ID_NONE){
+        chrome.tabs.query({windowId: window_id, active: true}, (tabs) => {
+            tabs.forEach(tab => {
+                tabs_stack.push(tab);
+            })
+        })
+    }
+})
+
 // switch tabs when the command toggle-tabs-switching is 
-// present from user using shortcut
+// present from user using shortcut. If the command is 
+// toggle-tabs-window, display a window wilt all the recent
+// tabs
 chrome.commands.onCommand.addListener(function(command) {
-    console.log("alt-tabbed");
     if (command == 'toggle-tabs-switching'){
         if (tabs_stack.length() > 1){
             var new_tab = tabs_stack.get_stack()[1];
-            chrome.tabs.update(new_tab.id, {active: true});
+            console.log(new_tab.windowId);
+            chrome.windows.update(new_tab.windowId, {focused: true});
+            chrome.tabs.update(new_tab.id, {active: true, highlighted: true});
+        }
+    } else if (command == 'toggle-tabs-window'){
+        if (tabs_window_toggled == false){
+            toggle_tabs_window();
+        }
+        else{
+            // move the tabs right
         }
     }
-  });
+});
+
+// global variable to indciate whether the tabs window overlay is on
+var tabs_window_toggled = false;
+
+// function responsible for sending message to content.js to toggle 
+// the tabs window
+function toggle_tabs_window(){
+    chrome.tabs.query({currentWindow: true, active: true}, (tabs) => {
+        var tab = tabs[0];
+        chrome.tabs.sendMessage(tab.id, {message: 'toggle_tabs_window', data: tabs_stack.get_stack()}, (response) => {
+            if (response.message == 'toggle_tabs_window', response.success == 0){
+                tabs_window_toggled = true;
+            }
+        })
+    })
+}
+
+// function responsible for sending message to content.js to untoggle 
+// the tabs window
+function untoggle_tabs_window(){
+    chrome.tabs.query({currentWindow: true, active: true}, (tabs) => {
+        var tab = tabs[0];
+        chrome.tabs.sendMessage(tab.id, {message: 'untoggle_tabs_window', data: tabs_stack.get_stack()}, (response) => {
+            if (response.message == 'untoggle_tabs_window' && response.success == 0){
+                tabs_window_toggled = false;
+            }
+        })
+    })
+}
 
   /*ar alt_down = false;
   var tab_down = false;
