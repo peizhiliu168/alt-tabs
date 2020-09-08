@@ -8,7 +8,7 @@
     z-index: 100;
     height: 100vh;
     width: 100vw;
-    background-color:rgba(255, 255, 255, 0.5);
+    background-color:rgba(255, 255, 255, 0);
 }
 
 #tabs-holder{
@@ -16,18 +16,24 @@
     align-items: center;
     justify-content: center;
     height: 20%;
-    padding-top: 20px;
-    padding-bottom: 20px;
-    padding-right: 40px;
-    padding-left: 40px;
+    padding-top: 5vh;
+    padding-bottom: 5vh;
+    padding-right: 15vh;
+    padding-left: 15vh;
+    border-radius: 12px;
     background-color: rgba(0, 0, 0, 0.6);
 }
 
 .single-tab{
     height: 90%;
-    padding: 1%;
-    margin: 5px;
-    background-color: rosybrown;
+    padding: 1vh;
+    border-style: solid;
+    border-color: transparent;
+}
+
+.single-tab:hover{
+    border-style: solid;
+    border-color: white;
 }
 
 .tab-icon-description{
@@ -43,6 +49,7 @@
 
 .tab-description{
     font-size: 1.5vh;
+    color: white;
     margin: 0;
 }
 

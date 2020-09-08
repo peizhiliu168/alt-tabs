@@ -4,7 +4,9 @@
     "version": "0.1",
 
     "permissions": [
-        "tabs"
+        "activeTab",
+        "tabs",
+        "<all_urls>"
     ],
 
     "browser_action": {

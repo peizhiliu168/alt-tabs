@@ -3,14 +3,16 @@ console.log('content script running')
 chrome.runtime.onMessage.addListener((request, sender, send_response) => {
     if (request.message == 'toggle_tabs_window'){
         // inject the html
-        send_response({message: request.message, success: 0});
+        send_response({message: request.message, return: 0});
     } else if (request.message == 'untoggle_tabs_window'){
         // remove the html
-        send_response({message: request.message, success: 0});
+        send_response({message: request.message, return: 0});
     }
 })
 
-
+function tabstack2html(tabs_stack){
+    
+}
 
 
 /*

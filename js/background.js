@@ -138,9 +138,10 @@ function start_alt_tabs(){
     // fill tabs_stack by pushing all the tabs onto stack
     chrome.tabs.query({}, (tabs) => {
         tabs.forEach(tab => {
+            tab.preview_image_path = '../images/default_tabs_preview.png';
             tabs_stack.push(tab);
         });
-    });
+    })
 
     // now repush the current tab user is on to make it the top of stack
     chrome.tabs.query({currentWindow: true, active: true}, (tabs) => {
@@ -148,6 +149,14 @@ function start_alt_tabs(){
             tabs_stack.push(tab);
         })
     })
+
+    // get the recent tab preview and change the preview image
+    chrome.tabs.captureVisibleTab((url) => {
+        if (url != null){
+            tabs_stack.get_stack()[0].preview_image_path = url;
+        }
+    })
+    
 }
 
 
@@ -172,11 +181,15 @@ chrome.tabs.onUpdated.addListener((tab_id, change_info, tab) => {
 // push update tab onto stack when selection is changed
 chrome.tabs.onActivated.addListener((active_info) => {
     console.log("tab activated");
-    console.log(tabs_stack)
     chrome.tabs.query({windowId: active_info.windowId, active: true}, (tabs) => {
         tabs.forEach(tab => {
             tabs_stack.push(tab);
         })
+    })
+    chrome.tabs.captureVisibleTab((url) => {
+        if (url != null){
+            tabs_stack.get_stack()[0].preview_image_path = url;
+        }
     })
 })
 
@@ -290,7 +303,7 @@ function untoggle_tabs_window(){
     chrome.tabs.query({currentWindow: true, active: true}, (tabs) => {
         var tab = tabs[0];
         chrome.tabs.sendMessage(tab.id, {message: 'untoggle_tabs_window', data: tabs_stack.get_stack()}, (response) => {
-            if (response.message == 'untoggle_tabs_window' && response.success == 0){
+            if (response.message == 'untoggle_tabs_window' && response.return == 0){
                 tabs_window_toggled = false;
             }
         })
