@@ -44,7 +44,13 @@
               },
             "description": "Toggle tabs window"
         }
-    }
+    },
+
+    "web_accessible_resources": [
+        "images/*.png",
+        "templates/*",
+        "styles/*"
+      ]
     
     
 }
