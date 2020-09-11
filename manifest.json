@@ -43,6 +43,15 @@
                 "linux": "Alt+W"
               },
             "description": "Toggle tabs window"
+        },
+        "untoggle-tabs-window": {
+            "suggested_key": {
+                "default": "Alt+Shift+W",
+                "mac": "Alt+Shift+W",
+                "chromeos": "Alt+Shift+W",
+                "linux": "Alt+Shift+W"
+              },
+            "description": "Untoggle tabs window"
         }
     },
 

@@ -138,7 +138,6 @@ function start_alt_tabs(){
     // fill tabs_stack by pushing all the tabs onto stack
     chrome.tabs.query({}, (tabs) => {
         tabs.forEach(tab => {
-            tab.preview_image_path = '../images/default_tabs_preview.png';
             tabs_stack.push(tab);
         });
     })
@@ -278,6 +277,8 @@ chrome.commands.onCommand.addListener(function(command) {
         else{
             // move the tabs right
         }
+    } else if (command == 'untoggle-tabs-window'){
+        untoggle_tabs_window();
     }
 });
 
