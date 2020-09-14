@@ -276,7 +276,10 @@ chrome.commands.onCommand.addListener(function(command) {
                 change_tab(new_tab);
             // select the current tab selection when window is toggled
             }else{
-                untoggle_tabs_window_changed();
+                chrome.tabs.query({currentWindow: true, active: true}, (tabs) => {
+                    let tab = tabs[0];
+                    untoggle_tabs_window_changed(tab);
+                })
             }
         }
     // Alt+W is pressed
@@ -326,28 +329,22 @@ function toggle_tabs_window(){
 
 // function responsible for sending message to content.js to untoggle 
 // the tabs window 
-function untoggle_tabs_window_no_change(){
-    chrome.tabs.query({currentWindow: true, active: true}, (tabs) => {
-        var tab = tabs[0];
-        chrome.tabs.sendMessage(tab.id, {message: 'untoggle_tabs_window_no_change'}, (response) => {
-            if (response.message == 'untoggle_tabs_window_no_change' && response.return == 0){
-                tabs_window_toggled = false;
-            }
-        })
+function untoggle_tabs_window_no_change(tab){
+    chrome.tabs.sendMessage(tab.id, {message: 'untoggle_tabs_window_no_change'}, (response) => {
+        if (response.message == 'untoggle_tabs_window_no_change' && response.return == 0){
+            tabs_window_toggled = false;
+        }
     })
 }
 
 // function responsible for sending message to content.js to untoggle 
 // the tabs window while also sending a message back (not a response)
 // to change the current focused window and tab
-function untoggle_tabs_window_changed(){
-    chrome.tabs.query({currentWindow: true, active: true}, (tabs) => {
-        var tab = tabs[0];
-        chrome.tabs.sendMessage(tab.id, {message: 'untoggle_tabs_window_changed',  data: tabs_stack.get_stack()}, (response) => {
-            if (response.message == 'untoggle_tabs_window_changed' && response.return == 0){
-                tabs_window_toggled = false;
-            }
-        })
+function untoggle_tabs_window_changed(tab){
+    chrome.tabs.sendMessage(tab.id, {message: 'untoggle_tabs_window_changed',  data: tabs_stack.get_stack()}, (response) => {
+        if (response.message == 'untoggle_tabs_window_changed' && response.return == 0){
+            tabs_window_toggled = false;
+        }
     })
 }
 

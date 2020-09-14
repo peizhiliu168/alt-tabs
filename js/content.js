@@ -80,7 +80,7 @@ $(document).on('keydown', '#tabs-window', (e) => {
     }
 })
 
-// detect for clicks
+// detection for clicks
 $(document).on('click', '#tabs-window', (e) => {
     var $clicked_element = $(event.target);
 
@@ -91,6 +91,19 @@ $(document).on('click', '#tabs-window', (e) => {
         untoggle_changed(tab_id);
     }
 })
+
+// detection for mouse entering 
+$(document).on('mouseenter', '.single-tab', (e) => {
+    var $hovered_tab = $(e.target).closest('.single-tab');
+        $hovered_tab.css("border-color", "white");
+})
+
+// detection for mouse leaving
+$(document).on('mouseleave', '.single-tab', (e) => {
+    var $hovered_tab = $(e.target).closest('.single-tab');
+        $hovered_tab.css("border-color", "transparent");
+})
+
 
 /* 
     helper functions...
