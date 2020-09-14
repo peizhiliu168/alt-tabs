@@ -178,6 +178,12 @@ chrome.tabs.onUpdated.addListener((tab_id, change_info, tab) => {
     let current_tab = tabs_stack.peek();
     if (tabs_window_toggled && current_tab.id == tab.id){
         untoggle_tabs_window_no_change(current_tab);
+    }else if (current_tab.id == tab.id){
+        chrome.tabs.captureVisibleTab((url) => {
+            if (url != null){
+                tabs_stack.get_stack()[0].preview_image_path = url;
+            }
+        })
     }
 
     tabs_stack.replace(tab, tab);
