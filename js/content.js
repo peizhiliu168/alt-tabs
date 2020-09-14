@@ -166,9 +166,13 @@ async function draw_tabs(tabs_list){
         await $.get(chrome.runtime.getURL('templates/tab_template.html'), (tab_string) => {
             var $tab = $(tab_string);
             $tab.attr('id', tab.id.toString());
-            $tab.find('.icon-capture').attr('src', tab.favIconUrl);
             $tab.find('.tab-description').text(tab.title);
             console.log(tab.title)
+            if (tab.favIconUrl == null){
+                $tab.find('.icon-capture').attr('src', chrome.runtime.getURL('images/logo.png'));
+            }else{
+                $tab.find('.icon-capture').attr('src', tab.favIconUrl);
+            }
             if (tab.preview_image_path == null){
                 $tab.find('.tab-capture').attr('src', chrome.runtime.getURL('images/default_tabs_preview.png'));
             }else{
