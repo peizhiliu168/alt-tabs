@@ -9,6 +9,9 @@ console.log('content script running')
 // tabs window is 
 var selection_index = null;
 
+// the maximum number of tabs in tabs window
+let max_num_tabs = 5;
+
 /*
     messaging between content and background
 */
@@ -95,13 +98,19 @@ $(document).on('click', '#tabs-window', (e) => {
 // detection for mouse entering 
 $(document).on('mouseenter', '.single-tab', (e) => {
     var $hovered_tab = $(e.target).closest('.single-tab');
+    var $selected_tab = $($('.single-tab')[selection_index])
+    if ($selected_tab.attr('id') != $hovered_tab.attr('id')){
         $hovered_tab.css("border-color", "white");
+    }
 })
 
 // detection for mouse leaving
 $(document).on('mouseleave', '.single-tab', (e) => {
     var $hovered_tab = $(e.target).closest('.single-tab');
+    var $selected_tab = $($('.single-tab')[selection_index])
+    if ($selected_tab.attr('id') != $hovered_tab.attr('id')){
         $hovered_tab.css("border-color", "transparent");
+    }    
 })
 
 
@@ -115,6 +124,7 @@ async function inject_window(tabs_list){
     selection_index = 0;
     await tabslist2html(tabs_list);
     await update_selection();
+    await modify_displayed();
     $('#tabs-window').focus();
 }
 
@@ -183,9 +193,81 @@ async function change_selection(step){
     // because js modulo is retarded
     selection_index  = (((selection_index + step) % tabs_list_len) + tabs_list_len) % tabs_list_len;
     await update_selection();
+    modify_displayed();
 }
 
+// get the n tabs that will be displayed in the window, returns
+// two numbers in a list that represent the beginning and end indices
+// respectively and inclusively
+function displayed_tabs_range(){
+    var max_index = $('.single-tab').length - 1;
+    if (max_index + 1 <= max_num_tabs){
+        return [0, max_index];
+    }
 
+    var range = get_displayed_tab_range();
+
+    if (selection_index == 0 || range == null){
+        return [0, max_num_tabs - 1];
+    } else{
+        console.log(range);
+        if (selection_index < range[0]){
+            return [selection_index, selection_index + (max_num_tabs - 1)]
+        } else if (selection_index > range[1]){
+            return [selection_index - (max_num_tabs - 1), selection_index];
+        } else{
+            return range;
+        }
+        
+    }
+}
+
+// changes the styles <display> of '.single-tab' element to 'flex' 
+// if it is within the range, or to 'none' if it is not in the 
+// range
+async function modify_displayed(){
+    var range = displayed_tabs_range();
+    var $tabs_list = $('.single-tab');
+    for (var i = 0; i < $tabs_list.length; i++){
+        if (i >= range[0] && i <= range[1]){
+            var $tab = $($tabs_list[i]);
+            $tab.css('display', 'block');
+        }else{
+            var $tab = $($tabs_list[i]);
+            $tab.css('display', 'none');
+        }
+    }
+}
+
+// get the current range of the displayed tabs
+function get_displayed_tab_range(){
+    var start;
+    var end;
+
+    var $tabs_list = $('.single-tab');
+
+    if ($tabs_list.length == 0){
+        return null;
+    }
+
+    for (var i = 0; i < $tabs_list.length; i++){
+        var $tab = $($tabs_list[i]);
+        if ($tab.css('display') == 'block'){
+            start = i
+            break;
+        }
+    }
+
+    for (var i = $tabs_list.length; i >= 0; i--){
+        var $tab = $($tabs_list[i]);
+        if ($tab.css('display') == 'block'){
+            end = i
+            break;
+        }
+    } 
+    
+    return [start, end];
+}
 
 /*
     The content script is in charge of capturing the

@@ -174,12 +174,24 @@ chrome.tabs.onCreated.addListener((tab) => {
 // when a tab is updated
 chrome.tabs.onUpdated.addListener((tab_id, change_info, tab) => {
     console.log("tab updated");
+
+    let current_tab = tabs_stack.peek();
+    if (tabs_window_toggled && current_tab.id == tab.id){
+        untoggle_tabs_window_no_change(current_tab);
+    }
+
     tabs_stack.replace(tab, tab);
 })
 
 // push update tab onto stack when selection is changed
 chrome.tabs.onActivated.addListener((active_info) => {
     console.log("tab activated");
+    
+    if (tabs_window_toggled){
+        let current_tab = tabs_stack.peek();
+        untoggle_tabs_window_no_change(current_tab);
+    }
+
     chrome.tabs.query({windowId: active_info.windowId, active: true}, (tabs) => {
         tabs.forEach(tab => {
             tabs_stack.push(tab);
@@ -222,6 +234,11 @@ chrome.tabs.onRemoved.addListener((tab_id, remove_info) => {
     if (!removed_tab){
         Error('removed tab does not exist in stack!');
     } else{
+        let current_tab = tabs_stack.peek();
+        if (current_tab.id == removed_tab.id){
+            untoggle_tabs_window_no_change(current_tab);
+        }
+
         tabs_stack.remove(removed_tab);
     }
 })
@@ -232,7 +249,7 @@ chrome.tabs.onRemoved.addListener((tab_id, remove_info) => {
 chrome.tabs.onReplaced.addListener((added_id, removed_id) => {
     console.log("tab replaced");
     var added_tab;
-    chrome.tabs.get((tab) => {added_tab = tab});
+    chrome.tabs.get(added_id, (tab) => {added_tab = tab});
 
     var removed_tab;
     for (var i = 0; i < tabs_stack.length(); i++){
@@ -241,15 +258,25 @@ chrome.tabs.onReplaced.addListener((added_id, removed_id) => {
         }
     }
     
-    if (!removed_tab){
+    if (!removed_tab && !added_tab){
         Error('removed tab does not exist in stack!');
     } else{
+        let current_tab = tabs_stack.peek();
+        if (current_tab.id == removed_tab.id){
+            untoggle_tabs_window_no_change(current_tab);
+        }
+
         tabs_stack.replace(removed_tab, added_tab);
     }
 })
 
 chrome.windows.onFocusChanged.addListener((window_id) => {
     if (window_id != chrome.windows.WINDOW_ID_NONE){
+        if (tabs_window_toggled){
+            let current_tab = tabs_stack.peek();
+            untoggle_tabs_window_no_change(current_tab);
+        }
+
         chrome.tabs.query({windowId: window_id, active: true}, (tabs) => {
             tabs.forEach(tab => {
                 tabs_stack.push(tab);
@@ -331,7 +358,7 @@ function toggle_tabs_window(){
 // the tabs window 
 function untoggle_tabs_window_no_change(tab){
     chrome.tabs.sendMessage(tab.id, {message: 'untoggle_tabs_window_no_change'}, (response) => {
-        if (response.message == 'untoggle_tabs_window_no_change' && response.return == 0){
+        if (response == null){
             tabs_window_toggled = false;
         }
     })
@@ -342,7 +369,7 @@ function untoggle_tabs_window_no_change(tab){
 // to change the current focused window and tab
 function untoggle_tabs_window_changed(tab){
     chrome.tabs.sendMessage(tab.id, {message: 'untoggle_tabs_window_changed',  data: tabs_stack.get_stack()}, (response) => {
-        if (response.message == 'untoggle_tabs_window_changed' && response.return == 0){
+        if (response == null){
             tabs_window_toggled = false;
         }
     })
