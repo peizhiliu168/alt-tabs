@@ -258,32 +258,58 @@ chrome.windows.onFocusChanged.addListener((window_id) => {
     }
 })
 
+// global variable to indciate whether the tabs window overlay is on
+var tabs_window_toggled = false;
+
 // switch tabs when the command toggle-tabs-switching is 
 // present from user using shortcut. If the command is 
 // toggle-tabs-window, display a window wilt all the recent
 // tabs
 chrome.commands.onCommand.addListener(function(command) {
+    // Alt+Q is pressed
     if (command == 'toggle-tabs-switching'){
         if (tabs_stack.length() > 1){
-            var new_tab = tabs_stack.get_stack()[1];
-            console.log(new_tab.windowId);
-            chrome.windows.update(new_tab.windowId, {focused: true});
-            chrome.tabs.update(new_tab.id, {active: true, highlighted: true});
+            // switch to most recent tab if window is not toggled
+            if (!tabs_window_toggled){
+                var new_tab = tabs_stack.get_stack()[1];
+                console.log(new_tab.windowId);
+                change_tab(new_tab);
+            // select the current tab selection when window is toggled
+            }else{
+                untoggle_tabs_window_changed();
+            }
         }
+    // Alt+W is pressed
     } else if (command == 'toggle-tabs-window'){
-        if (tabs_window_toggled == false){
+        // launch the tabs window when <tabs_window_toggled> is false
+        if (!tabs_window_toggled){
             toggle_tabs_window();
         }
+        // advance the tabs window selection when <tabs_window_toggled> is true
         else{
-            // move the tabs right
+            let step = 1;
+            move_tab_selection(step);
         }
-    } else if (command == 'untoggle-tabs-window'){
-        untoggle_tabs_window();
+    // Alt+Shift+W is pressed
+    } else if (command == 'reverse-tab-selection'){
+        if (tabs_window_toggled){
+            let step = -1;
+            move_tab_selection(step);
+        }
     }
 });
 
-// global variable to indciate whether the tabs window overlay is on
-var tabs_window_toggled = false;
+// recieves all the messages from the content
+chrome.runtime.onMessage.addListener((request, sender, send_response) => {
+    if (request.message == 'untoggle_no_change'){
+        tabs_window_toggled = false;
+        send_response({message: request.message, return: 0});
+    } else if (request.message == 'untoggle_changed'){
+        tabs_window_toggled = false;
+        change_tab(request.tab_id);
+        send_response({message: request.message, return: 0});
+    }
+})
 
 // function responsible for sending message to content.js to toggle 
 // the tabs window
@@ -291,7 +317,7 @@ function toggle_tabs_window(){
     chrome.tabs.query({currentWindow: true, active: true}, (tabs) => {
         var tab = tabs[0];
         chrome.tabs.sendMessage(tab.id, {message: 'toggle_tabs_window', data: tabs_stack.get_stack()}, (response) => {
-            if (response.message == 'toggle_tabs_window', response.success == 0){
+            if (response.message == 'toggle_tabs_window', response.return == 0){
                 tabs_window_toggled = true;
             }
         })
@@ -299,16 +325,56 @@ function toggle_tabs_window(){
 }
 
 // function responsible for sending message to content.js to untoggle 
-// the tabs window
-function untoggle_tabs_window(){
+// the tabs window 
+function untoggle_tabs_window_no_change(){
     chrome.tabs.query({currentWindow: true, active: true}, (tabs) => {
         var tab = tabs[0];
-        chrome.tabs.sendMessage(tab.id, {message: 'untoggle_tabs_window', data: tabs_stack.get_stack()}, (response) => {
-            if (response.message == 'untoggle_tabs_window' && response.return == 0){
+        chrome.tabs.sendMessage(tab.id, {message: 'untoggle_tabs_window_no_change'}, (response) => {
+            if (response.message == 'untoggle_tabs_window_no_change' && response.return == 0){
                 tabs_window_toggled = false;
             }
         })
     })
+}
+
+// function responsible for sending message to content.js to untoggle 
+// the tabs window while also sending a message back (not a response)
+// to change the current focused window and tab
+function untoggle_tabs_window_changed(){
+    chrome.tabs.query({currentWindow: true, active: true}, (tabs) => {
+        var tab = tabs[0];
+        chrome.tabs.sendMessage(tab.id, {message: 'untoggle_tabs_window_changed',  data: tabs_stack.get_stack()}, (response) => {
+            if (response.message == 'untoggle_tabs_window_changed' && response.return == 0){
+                tabs_window_toggled = false;
+            }
+        })
+    })
+}
+
+// function responsible for sending message to content.js to move the
+// selection in the tabs window to the right
+function move_tab_selection(step){
+    chrome.tabs.query({currentWindow: true, active: true}, (tabs) => {
+        var tab = tabs[0];
+        chrome.tabs.sendMessage(tab.id, {message: 'move_tab_selection', step: step});
+    })
+}
+
+// given the id of a tab or the tab itself, 
+// change window and tab focus to that tab
+function change_tab(tab_or_id){
+    if (typeof tab_or_id == 'number'){
+        chrome.tabs.get(tab_or_id, (tab) => {
+            if (tab != null){
+                chrome.windows.update(tab.windowId, {focused: true});
+                chrome.tabs.update(tab.id, {active: true, highlighted: true});
+            }
+        }) 
+    } else if (typeof tab_or_id == 'object'){
+        chrome.windows.update(tab_or_id.windowId, {focused: true});
+        chrome.tabs.update(tab_or_id.id, {active: true, highlighted: true});
+    }
+    
 }
 
   /*ar alt_down = false;

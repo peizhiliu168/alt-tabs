@@ -44,14 +44,14 @@
               },
             "description": "Toggle tabs window"
         },
-        "untoggle-tabs-window": {
+        "reverse-tab-selection": {
             "suggested_key": {
                 "default": "Alt+Shift+W",
                 "mac": "Alt+Shift+W",
                 "chromeos": "Alt+Shift+W",
                 "linux": "Alt+Shift+W"
               },
-            "description": "Untoggle tabs window"
+            "description": "Reverse tab selection"
         }
     },
 
