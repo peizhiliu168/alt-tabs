@@ -1,7 +1,15 @@
 <img src="image/../images/logo.png" alt="drawing" width="150"/>
 
 # Introduction
-Alt+Tabs is a Google Chrome extension that provides tabs switching functionality in addition to those offered by the Chrome browser. It is heavily inspired by the traditional Alt+Tab shortcut in operating systems such as Linux, Mac OS, and Windows, and aims at providing a similar user experience.
+Alt+Tabs is a Google Chrome extension that provides tabs switching functionality in addition to those offered by the Chrome browser. It is heavily inspired by the traditional Alt+Tab shortcut in operating systems such as Linux, Mac OS, and Windows, and aims at providing similar user experience.
+
+# Installation
+1. Clone this repository
+2. In Chrome, go to the URL [chrome://extensions/](chrome://extensions/)
+3. Enable "Developer mode" located on the upper right
+4. Click "Load unpacked" on the upper left
+5. Select the cloned directory in your files system
+6. Restart your browser
 
 # Controls
 - Alt+Q (with tabs window closed) - quickly switch between the two most recent tabs
@@ -9,11 +17,11 @@ Alt+Tabs is a Google Chrome extension that provides tabs switching functionality
 - Alt+Q (with tabs window open) - select the current highlighted tab
 - Alt+W (with tabs window open) - highlight the next tab to the right
 - Alt+Shift+W (with tabs window open) - highlight the next tab to the left
-- Left and right arrow keys - move highlight to the right or left tabs
+- Left and right arrow keys - move the highlight to the right or left tabs
 - Escape (with tabs window open) - exit the tabs window
 - Mouse click
-  - click on any tab to select it
-  - click outside the tabs to exit the tabs window
+  - Click on any tab to select it
+  - Click outside the tabs to exit the tabs window
 
 # Note
 - Please restart your browser to enable this extension
