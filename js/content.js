@@ -13,13 +13,19 @@ var selection_index = null;
 // when the window is first loaded or when it is resized
 var max_num_tabs = 5;
 $(window).on('load resize', () => {
+    var ratio_constant = 5 / (16 / 9);
     if ($('#tabs-window').length){
+        // from https://stackoverflow.com/questions/1248081/how-to-get-the-browser-viewport-dimensions
         const vw = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0);
-        max_num_tabs = Math.floor(vw / 260);
+        const vh = Math.max(document.documentElement.clientHeight || 0, window.innerHeight || 0)
+        const ratio = vw / vh;
+        max_num_tabs = Math.floor(ratio_constant * ratio);
         modify_displayed();
     } else{
         const vw = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0);
-        max_num_tabs = Math.floor(vw / 260);
+        const vh = Math.max(document.documentElement.clientHeight || 0, window.innerHeight || 0)
+        const ratio = vw / vh;
+        max_num_tabs = Math.floor(ratio_constant * ratio);
     }
 })
 
