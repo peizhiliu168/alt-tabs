@@ -9,8 +9,20 @@ console.log('content script running')
 // tabs window is 
 var selection_index = null;
 
-// the maximum number of tabs in tabs window
-let max_num_tabs = 5;
+// calculate the maximum number of tabs in tabs window
+// when the window is first loaded or when it is resized
+var max_num_tabs = 5;
+$(window).on('load resize', () => {
+    if ($('#tabs-window').length){
+        const vw = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0);
+        max_num_tabs = Math.floor(vw / 260);
+        modify_displayed();
+    } else{
+        const vw = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0);
+        max_num_tabs = Math.floor(vw / 260);
+    }
+})
+
 
 /*
     messaging between content and background
@@ -123,8 +135,9 @@ $(document).on('mouseleave', '.single-tab', (e) => {
 async function inject_window(tabs_list){
     selection_index = 0;
     await tabslist2html(tabs_list);
-    await update_selection();
-    await modify_displayed();
+    update_selection();
+    modify_displayed();
+    fix_tabs_description();
     $('#tabs-window').focus();
 }
 
@@ -144,7 +157,7 @@ async function update_selection(){
 // a <tabs_stack> and convert that into html string that 
 // is displayed
 async function tabslist2html(tabs_list){
-    await draw_tabs_holder();
+    draw_tabs_holder();
     await draw_tabs(tabs_list);
 }
 
@@ -168,6 +181,7 @@ async function draw_tabs(tabs_list){
             $tab.attr('id', tab.id.toString());
             $tab.find('.tab-description').text(tab.title);
             console.log(tab.title)
+
             if (tab.favIconUrl == null){
                 $tab.find('.icon-capture').attr('src', chrome.runtime.getURL('images/logo.png'));
             }else{
@@ -178,6 +192,8 @@ async function draw_tabs(tabs_list){
             }else{
                 $tab.find('.tab-capture').attr('src', tab.preview_image_path);
             }
+            $tab.css('display', 'none');
+
             $tab.appendTo('#tabs-holder');
         });
     }
@@ -241,6 +257,7 @@ async function modify_displayed(){
             $tab.css('display', 'none');
         }
     }
+    fix_tabs_description();
 }
 
 // get the current range of the displayed tabs
@@ -271,6 +288,29 @@ function get_displayed_tab_range(){
     } 
     
     return [start, end];
+}
+
+/*
+    Weird styling that I can't do in css
+*/
+// fixes the size of the tab descriptions when the window loads or 
+// resizes
+$(window).on('load resize', () => {
+    fix_tabs_description();
+})
+
+// function used to fix the tab descriptions by setting the width of 
+// <.tab-icon-description> elements to be the width of the tab capture 
+// images
+function fix_tabs_description(){
+    if ($('#tabs-window').length){
+        $('.single-tab').each((index, element) => {
+            if ($(element).css('display') != 'none'){
+                var width = $(element).find('.tab-capture').css('width');
+                $(element).find('.tab-icon-description').css('width', width);
+            }
+        })
+    }
 }
 
 /*

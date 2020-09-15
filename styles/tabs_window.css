@@ -181,6 +181,7 @@
     padding: 1vh;
     border-style: solid;
     border-color: transparent;
+    overflow: hidden;
 }
 
 .single-tab:hover{
@@ -197,7 +198,9 @@
 }
 
 .icon-capture{
-    height: 98%;
+    height: 98% !important;
+    padding-right: 0.3vw;
+    padding-bottom: 0.3vw;
 }
 
 .tab-description{
@@ -213,5 +216,5 @@
 
 .tab-capture{
     position: relative;
-    height: 78%;
+    height: 78% !important;
 }
