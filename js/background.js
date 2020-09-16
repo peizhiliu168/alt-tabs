@@ -175,15 +175,21 @@ function start_alt_tabs(){
 // push new tab onto stack when it's created
 chrome.tabs.onCreated.addListener((tab) => {
     //console.log("tab created");
+    var previous_stack_tab = tabs_stack.peek();
+    
+    // detect if tab was opened as "open+go" or just "open"
     chrome.tabs.query({currentWindow: true, active: true}, (tabs) => {
-        var current_tab = tabs[0];
-        if (current_tab.id == tab.id){
+        var current_active_tab = tabs[0];
+        if (current_active_tab.id == tab.id){
             tabs_stack.push(tab);
-            if (tabs_window_toggled){
-                untoggle_tabs_window_no_change(current_tab);
+            if (tabs_window_toggled && current_active_tab.id != previous_stack_tab.id){
+                untoggle_tabs_window_no_change(previous_stack_tab);
             }
         }else{
             tabs_stack.push_back(tab);
+            if (tabs_window_toggled && current_active_tab.id == previous_stack_tab.id){
+                toggle_tabs_window();
+            }
         }
     })
 })
