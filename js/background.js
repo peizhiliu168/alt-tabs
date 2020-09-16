@@ -31,6 +31,13 @@ class Stack{
         this.data = new_data
     }
 
+    // given an element, push the element to the back of the stack
+    // and increment the top counter
+    push_back(element){
+        this.data.unshift(element);
+        this.top ++;
+    }
+
     // replaces one element with another
     replace(old_element, new_element){
         var index = this.data.findIndex(this.predicate, old_element);
@@ -168,7 +175,17 @@ function start_alt_tabs(){
 // push new tab onto stack when it's created
 chrome.tabs.onCreated.addListener((tab) => {
     //console.log("tab created");
-    tabs_stack.push(tab);
+    chrome.tabs.query({currentWindow: true, active: true}, (tabs) => {
+        var current_tab = tabs[0];
+        if (current_tab.id == tab.id){
+            tabs_stack.push(tab);
+            if (tabs_window_toggled){
+                untoggle_tabs_window_no_change(current_tab);
+            }
+        }else{
+            tabs_stack.push_back(tab);
+        }
+    })
 })
 
 // when a tab is updated

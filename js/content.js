@@ -14,17 +14,18 @@ var selection_index = null;
 var max_num_tabs = 5;
 $(window).on('load resize', () => {
     var ratio_constant = 5 / (16 / 9);
-    if ($('#tabs-window').length){
-        const vw = window.outerWidth;
-        const vh = window.outerHeight;
-        const ratio = vw / vh;
-        max_num_tabs = Math.floor(ratio_constant * ratio);
-        modify_displayed();
-    } else{
-        const vw = window.outerWidth;
-        const vh = window.outerHeight;
-        const ratio = vw / vh;
-        max_num_tabs = Math.floor(ratio_constant * ratio);
+    const vw = window.outerWidth;
+    const vh = window.outerHeight;
+    const ratio = vw / vh;
+
+    if (vw && vh){
+        if ($('#tabs-window').length){
+            max_num_tabs = Math.floor(ratio_constant * ratio);
+            modify_displayed();
+        } else{
+            const ratio = vw / vh;
+            max_num_tabs = Math.floor(ratio_constant * ratio);
+        }
     }
 })
 
@@ -162,7 +163,7 @@ async function update_selection(){
 // a <tabs_stack> and convert that into html string that 
 // is displayed
 async function tabslist2html(tabs_list){
-    draw_tabs_holder();
+    await draw_tabs_holder();
     await draw_tabs(tabs_list);
 }
 
