@@ -167,13 +167,13 @@ function start_alt_tabs(){
 
 // push new tab onto stack when it's created
 chrome.tabs.onCreated.addListener((tab) => {
-    console.log("tab created");
+    //console.log("tab created");
     tabs_stack.push(tab);
 })
 
 // when a tab is updated
 chrome.tabs.onUpdated.addListener((tab_id, change_info, tab) => {
-    console.log("tab updated");
+    //console.log("tab updated");
 
     let current_tab = tabs_stack.peek();
     if (tabs_window_toggled && current_tab.id == tab.id){
@@ -191,7 +191,7 @@ chrome.tabs.onUpdated.addListener((tab_id, change_info, tab) => {
 
 // push update tab onto stack when selection is changed
 chrome.tabs.onActivated.addListener((active_info) => {
-    console.log("tab activated");
+    //console.log("tab activated");
     
     if (tabs_window_toggled){
         let current_tab = tabs_stack.peek();
@@ -229,7 +229,7 @@ chrome.tabs.onAttached.addListener((tab_id) => {
 // do a search in the tabs_stack for the tab instead of using 
 // tab.query
 chrome.tabs.onRemoved.addListener((tab_id, remove_info) => {
-    console.log("tab removed");
+    //console.log("tab removed");
     var removed_tab;
     for (var i = 0; i < tabs_stack.length(); i++){
         if (tabs_stack.get_stack_true()[i].id == tab_id){
@@ -253,7 +253,7 @@ chrome.tabs.onRemoved.addListener((tab_id, remove_info) => {
 // idea of getting the old tab is the same as the the callback
 // for onRemoved
 chrome.tabs.onReplaced.addListener((added_id, removed_id) => {
-    console.log("tab replaced");
+    //console.log("tab replaced");
     var added_tab;
     chrome.tabs.get(added_id, (tab) => {added_tab = tab});
 
@@ -305,7 +305,7 @@ chrome.commands.onCommand.addListener(function(command) {
             // switch to most recent tab if window is not toggled
             if (!tabs_window_toggled){
                 var new_tab = tabs_stack.get_stack()[1];
-                console.log(new_tab.windowId);
+                //console.log(new_tab.windowId);
                 change_tab(new_tab);
             // select the current tab selection when window is toggled
             }else{

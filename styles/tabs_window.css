@@ -1,4 +1,4 @@
-/* because stupid webpages screw with tabs window styling */
+/* because webpages screw with tabs window styling */
 #tabs-window, #tabs-holder, .single-tab, .tab-icon-description, .icon-capture, .tab-description.tab-capture{
     animation : none;
     animation-delay : 0;
@@ -80,6 +80,7 @@
     font-style : normal;
     font-variant : normal;
     font-weight : normal;
+    flex-direction: row;
     height : auto;
     hyphens : none;
     left : auto;

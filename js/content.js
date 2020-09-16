@@ -1,8 +1,8 @@
 /*
-    initializations
+    Initializations
 */
 
-console.log('content script running')
+//console.log('content script running')
 
 // the selection index is used to keep track
 // of where the current highlighted tab in the 
@@ -15,15 +15,14 @@ var max_num_tabs = 5;
 $(window).on('load resize', () => {
     var ratio_constant = 5 / (16 / 9);
     if ($('#tabs-window').length){
-        // from https://stackoverflow.com/questions/1248081/how-to-get-the-browser-viewport-dimensions
-        const vw = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0);
-        const vh = Math.max(document.documentElement.clientHeight || 0, window.innerHeight || 0)
+        const vw = window.outerWidth;
+        const vh = window.outerHeight;
         const ratio = vw / vh;
         max_num_tabs = Math.floor(ratio_constant * ratio);
         modify_displayed();
     } else{
-        const vw = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0);
-        const vh = Math.max(document.documentElement.clientHeight || 0, window.innerHeight || 0)
+        const vw = window.outerWidth;
+        const vh = window.outerHeight;
         const ratio = vw / vh;
         max_num_tabs = Math.floor(ratio_constant * ratio);
     }
@@ -31,10 +30,10 @@ $(window).on('load resize', () => {
 
 
 /*
-    messaging between content and background
+    Messaging between content and background
 */
 
-// recieves all the messages from the background
+// receives all the messages from the background
 chrome.runtime.onMessage.addListener((request, sender, send_response) => {
     if (request.message == 'toggle_tabs_window'){
         inject_window(request.data);
@@ -52,7 +51,7 @@ chrome.runtime.onMessage.addListener((request, sender, send_response) => {
 })
 
 // untoggles/ejects the tabs window and sends message 
-// to backround
+// to background
 async function untoggle_no_change(){
     await chrome.runtime.sendMessage({message: 'untoggle_no_change'}, (response) => {
         if (response.message != 'untoggle_no_change' || response.return != 0){
@@ -64,7 +63,7 @@ async function untoggle_no_change(){
     try{
         eject_window();
     } catch(err){
-        console.log('No window to eject.');
+        //console.log('No window to eject.');
     }
 }
 
@@ -87,7 +86,7 @@ async function untoggle_changed(tab_id){
 
 // specifically listen for key presses
 $(document).on('keydown', '#tabs-window', (e) => {
-    console.log(e.key)
+    //console.log(e.key)
     if (e.key === 'Escape'){
         untoggle_no_change();
     }else if (e.key === 'Enter'){
@@ -133,7 +132,7 @@ $(document).on('mouseleave', '.single-tab', (e) => {
 
 
 /* 
-    helper functions...
+    Helper functions...
 */
 
 // injects the tabs window into the page, set the selection index
@@ -186,9 +185,9 @@ async function draw_tabs(tabs_list){
             var $tab = $(tab_string);
             $tab.attr('id', tab.id.toString());
             $tab.find('.tab-description').text(tab.title);
-            console.log(tab.title)
+            //console.log(tab.title)
 
-            if (tab.favIconUrl == null){
+            if (tab.favIconUrl == null || tab.favIconUrl == ''){
                 $tab.find('.icon-capture').attr('src', chrome.runtime.getURL('images/logo.png'));
             }else{
                 $tab.find('.icon-capture').attr('src', tab.favIconUrl);
@@ -216,7 +215,7 @@ async function eject_window(){
 // the <step> amount
 async function change_selection(step){
     var tabs_list_len = $('.single-tab').length;
-    // because js modulo is retarded
+    // because js modulo doesn't work properly :/
     selection_index  = (((selection_index + step) % tabs_list_len) + tabs_list_len) % tabs_list_len;
     await update_selection();
     modify_displayed();
@@ -236,7 +235,7 @@ function displayed_tabs_range(){
     if (selection_index == 0 || range == null){
         return [0, max_num_tabs - 1];
     } else{
-        console.log(range);
+        //console.log(range);
         if (selection_index < range[0]){
             return [selection_index, selection_index + (max_num_tabs - 1)]
         } else if (selection_index > range[1]){

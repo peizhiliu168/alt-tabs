@@ -1,6 +1,6 @@
 <img src="image/../images/logo.png" alt="drawing" width="150"/>
 
-# Introduction
+# About
 Alt+Tabs is a Google Chrome extension that provides tabs switching functionality in addition to those offered by the Chrome browser. It is heavily inspired by the traditional Alt+Tab shortcut in operating systems such as Linux, Mac OS, and Windows, and aims at providing similar user experience.
 
 # Installation
@@ -26,6 +26,6 @@ Alt+Tabs is a Google Chrome extension that provides tabs switching functionality
 
 # Note
 - Please restart your browser or refresh all your tabs to enable this extension
-- You may find Alt+W to not work on certain pages such as the Chrome extensions page or the new tabs page
+- You may find Alt+W to bring up the tabs window to not work on certain pages such as the Chrome extensions page or the new tabs page.
 
 
