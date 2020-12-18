@@ -13,6 +13,7 @@ Alt+Tabs is a Google Chrome extension that provides tabs switching functionality
 6. Restart your browser or refresh all your tabs
 
 ## Controls
+<img src='showcase_image_1.png'> <img src='showcase_image_2.png'>
 - Alt+Q (with tabs window closed) - quickly switch between the two most recent tabs
 - Alt+W (with tabs window closed) - brings up a tabs window with all the tabs
 - Alt+Q (with tabs window open) - select the current highlighted tab
