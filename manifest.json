@@ -1,72 +1,53 @@
 {
-    "manifest_version": 2,
-    "name": "Alt+Tabs",
-    "version": "1.0.0",
-
-    "author": "leopitcher",
-
-    "icons": { 
-      "48": "images/icon48.png",
-      "128": "images/icon128.png" 
-    },
-
-    "permissions": [
-        "activeTab",
-        "tabs",
-        "<all_urls>"
-    ],
-
-    "browser_action": {
-        "default_icon": "images/logo.png",
-        "default_title": "Alt Tabs"
-    },
-
-    "content_scripts": [
-        {
-          "matches": ["<all_urls>"],
-          "js": ["js/jquery.min.js","js/content.js"]
+  "author": "leopitcher",
+  "background": {
+     "scripts": [ "js/background.js" ]
+  },
+  "browser_action": {
+     "default_icon": "images/logo.png",
+     "default_title": "Alt Tabs"
+  },
+  "commands": {
+     "reverse-tab-selection": {
+        "description": "Reverse tab selection",
+        "suggested_key": {
+           "chromeos": "Alt+Shift+W",
+           "default": "Alt+Shift+W",
+           "linux": "Alt+Shift+W",
+           "mac": "Alt+Shift+W"
         }
-      ],
-
-    "background": {
-        "scripts": ["js/background.js"]
-    },
-
-    "commands":{
-        "toggle-tabs-switching": {
-            "suggested_key": {
-                "default": "Alt+Q",
-                "mac": "Alt+Q",
-                "chromeos": "Alt+Q",
-                "linux": "Alt+Q"
-              },
-            "description": "Toggle tabs switching"
-        },
-        "toggle-tabs-window": {
-            "suggested_key": {
-                "default": "Alt+W",
-                "mac": "Alt+W",
-                "chromeos": "Alt+W",
-                "linux": "Alt+W"
-              },
-            "description": "Toggle tabs window"
-        },
-        "reverse-tab-selection": {
-            "suggested_key": {
-                "default": "Alt+Shift+W",
-                "mac": "Alt+Shift+W",
-                "chromeos": "Alt+Shift+W",
-                "linux": "Alt+Shift+W"
-              },
-            "description": "Reverse tab selection"
+     },
+     "toggle-tabs-switching": {
+        "description": "Toggle tabs switching",
+        "suggested_key": {
+           "chromeos": "Alt+Q",
+           "default": "Alt+Q",
+           "linux": "Alt+Q",
+           "mac": "Alt+Q"
         }
-    },
-
-    "web_accessible_resources": [
-        "images/*.png",
-        "templates/*",
-        "styles/*"
-      ]
-    
-    
+     },
+     "toggle-tabs-window": {
+        "description": "Toggle tabs window",
+        "suggested_key": {
+           "chromeos": "Alt+W",
+           "default": "Alt+W",
+           "linux": "Alt+W",
+           "mac": "Alt+W"
+        }
+     }
+  },
+  "content_scripts": [ {
+     "js": [ "js/jquery.min.js", "js/content.js" ],
+     "matches": [ "\u003Call_urls>" ]
+  } ],
+  "icons": {
+     "128": "images/icon128.png",
+     "48": "images/icon48.png"
+  },
+  "manifest_version": 2,
+  "name": "Alt+Tabs",
+  "permissions": [ "\u003Call_urls>" ],
+  "update_url": "https://clients2.google.com/service/update2/crx",
+  "version": "1.0.0",
+  "web_accessible_resources": [ "images/*.png", "templates/*", "styles/*" ]
 }
