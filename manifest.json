@@ -1,9 +1,10 @@
 {
   "author": "leopitcher",
   "background": {
-     "scripts": [ "js/background.js" ]
+       "service_worker": "js/background.js",
+      "type": "module"
   },
-  "browser_action": {
+  "action": {
      "default_icon": "images/logo.png",
      "default_title": "Alt Tabs"
   },
@@ -44,10 +45,35 @@
      "128": "images/icon128.png",
      "48": "images/icon48.png"
   },
-  "manifest_version": 2,
+  "manifest_version": 3,
   "name": "Alt+Tabs",
-  "permissions": [ "\u003Call_urls>" ],
+  "permissions": [],
+  "host_permissions": [ "\u003Call_urls>" ],
   "update_url": "https://clients2.google.com/service/update2/crx",
-  "version": "1.0.0",
-  "web_accessible_resources": [ "images/*.png", "templates/*", "styles/*" ]
+  "version": "1.0.1",
+  "web_accessible_resources": [ 
+       {
+      "resources": [
+        "images/*"
+      ],
+      "matches": [
+        "*://*/*"
+      ]
+    },
+        {
+      "resources": [
+        "templates/*"
+      ],
+      "matches": [
+        "*://*/*"
+      ]
+    },
+        {
+      "resources": [
+        "styles/*"
+      ],
+      "matches": [
+        "*://*/*"
+      ]
+    }]
 }
